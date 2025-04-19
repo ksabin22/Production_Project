@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>Profile Settings</title>
+        <title>Profile</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <style>
             :root {
@@ -220,17 +220,28 @@
 
     <body data-theme="light">
         <header>
-            <div>Profile Settings</div>
+            <div>Water Management System</div>
             <div style="display: flex; align-items: center;">
                 <div class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-adjust"></i></div>
                 <div class="user-dropdown">
                     <span id="user-name">{{ Auth::user()->name }}</span>
                     <div class="user-dropdown-content">
                         <a href="{{ route('dashboard') }}">Dashboard</a>
+                        <a href="{{ route('profile.edit') }}">Profile</a>
                         <a href="{{ route('logout') }}"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf</form>
+                    </div>
+                </div>
+                <div class="user-dropdown" style="margin-left: 10px;">
+                    <span>Reading History</span>
+                    <div class="user-dropdown-content">
+                        <a href="{{ route('temperature.history') }}">Temperature History</a>
+                        <a href="{{ route('water.history') }}">Water Level History </a>
+                        <a href="{{ route('tds.history') }}">TDS History </a>
+                        <a href="{{ route('sensor.history') }}">Sensor History </a>
+                        <a href="{{ route('device.history') }}">Device History</a>
                     </div>
                 </div>
             </div>
@@ -374,7 +385,7 @@
                 validateField(emailField, /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Enter a valid email address');
                 validateField(passwordField, /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
                     'Password must contain at least one lowercase letter, one uppercase letter, one number, one special character, and be 8 characters or longer'
-                    );
+                );
             });
         </script>
     </body>

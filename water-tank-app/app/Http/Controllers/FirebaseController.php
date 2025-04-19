@@ -59,29 +59,40 @@ class FirebaseController extends Controller
      */
     public function switchMode(Request $request, FirebaseService $firebase)
     {
+        // 1) Validate as boolean. Accepts true, false, "1", "0", "true", "false"
         $request->validate([
-            'mode' => 'required|string|in:AUTO,MANUAL'
+            'mode' => 'required|boolean',
         ]);
-
-        $mode = strtoupper($request->input('mode'));
-
+    
+        // 2) Cast to bool
+        $mode = $request->boolean('mode');
+    
         try {
+            // 3) Write the boolean directly under "controls/mode"
             $firebase->set('control/mode', $mode);
-
+    
             Log::info('Mode switched by user ID ' . auth()->id(), [
-                'new_mode' => $mode
+                'new_mode' => $mode,
             ]);
-
+    
+            // 4) Read back the entire "controls" node
+            $controls = $firebase->get('controls');
+    
             return response()->json([
-                'status' => 'mode switched',
-                'mode' => $mode,
-                'control' => $firebase->get('control')
+                'status'  => 'mode switched',
+                'mode'    => $mode,
+                'controls'=> $controls,
             ]);
         } catch (\Throwable $e) {
-            Log::error('Failed to switch mode', ['message' => $e->getMessage()]);
-            return response()->json(['error' => 'Could not switch mode'], 500);
+            Log::error('Failed to switch mode', [
+                'message' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'error' => 'Could not switch mode',
+            ], 500);
         }
     }
+    
 
     /**
      * Save new Wi-Fi credentials to Firebase /control.
