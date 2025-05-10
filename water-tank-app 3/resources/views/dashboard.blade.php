@@ -293,6 +293,7 @@
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             Logout
                         </a>
+
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf
                         </form>
@@ -428,7 +429,7 @@
                         document.getElementById('oled_status').innerText = status?.oled || '--';
 
                         // Switches
-                        document.getElementById('toggle_pump').checked = control?.pump === true;
+                        document.getElementById('toggle_pump').checked = status?.pump === "ON";
                         document.getElementById('toggle_buzzer').checked = control?.buzzer === true;
                         document.getElementById('toggle_tds').checked = control?.tds === true;
                         document.getElementById('toggle_temp').checked = control?.temp === true;
@@ -457,7 +458,7 @@
                                     water_level: readings.water_level ?? 0,
 
                                     // timestamps & network
-                                    reading_at: status.date_time, // "2025-04-18 13:37:34"
+                                    reading_at: status.last_online, // "2025-04-18 13:37:34"
                                     ip: status.ip, // "192.168.1.12"
                                     last_online: status.last_online, // "23:44:06"
                                     last_sync: status.last_sync, // "13:37:34"
@@ -539,6 +540,17 @@
                 toggle.addEventListener('change', () => {
                     const key = toggle.id.replace('toggle_', '');
                     const value = toggle.checked;
+                    // If pump toggle, check current mode first
+        if (key === 'pump') {
+            const currentMode = document.getElementById('mode_status').innerText.trim();
+            
+            if (currentMode === 'AUTO') {
+                showToast('Cannot toggle pump in AUTO mode');
+                // Revert toggle back immediately
+                toggle.checked = !value;
+                return;
+            }
+        }
                     fetch('/toggle', {
                         method: 'POST',
                         headers: {
